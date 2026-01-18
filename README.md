@@ -127,7 +127,8 @@ npm run test:e2e
 The system uses `messageNumber` and `rocketUuid` within the Stateful Indexing logic to ensure that late-arriving messages do not overwrite newer data.
 
 ## Search Performance
-By using Elasticsearch Aggregations, the GET /rockets endpoint provides a collapsed view of the fleet without requiring the client to process thousands of raw logs.
+The POST /search endpoint utilizes the searchByProperty method to perform efficient document filtering via bool.must queries and deterministic sorting, 
+ensuring specific telemetry data is retrieved without manual client-side processing
 
 # A better Architecture
 
@@ -136,7 +137,7 @@ so better arch will be
 
 ![Better Arch](assets/better-arch.png)
 
-This allows 
+This allows
 
 1. Decouple the services
 2. Easy addition of downstream systems
