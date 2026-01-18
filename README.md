@@ -144,3 +144,37 @@ This allows
 
 # Known Issues
 * There is a hard limit of `size: 1000` set on the elastic search queries which can be resolved with either [Composite Aggregation](https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-composite-aggregation) or normal pagination using the `search_after`  
+
+# Production & Scalability Considerations
+To transition this proof-of-concept into a production-grade system for a high-concurrency environment consider the following
+
+## Data Integrity & Consistency
+
+### Optimistic Concurrency
+In a high-concurrency distributed system, SQS retries or parallel Lambda 
+executions can lead to race conditions.
+I would implement Elasticsearch's if_seq_no and if_primary_term on 
+state updates to ensure that a stale process does not overwrite a newer state update.
+
+
+### Idempotency
+While messageNumber guards against old data, 
+a true idempotent consumer would store a hash of the processed SQS messageId 
+in a fast-access cache (like Redis) or an Elasticsearch field or DynamoDB
+to prevent re-processing logic for successfully completed events.
+
+## Resilience
+
+To protect the Dashboard API, I would implement circuit breakers on the Elasticsearch client. If the cluster becomes unresponsive, 
+the API should fail fast or serve stale data from a cache
+
+## Observability (SLIs/SLOs)
+
+### Distributed Tracing and alerts
+I would use something like NewRelic traceability feature or the like to trace events 
+from inception till its processed in the last downstream service.
+I would also add alerts starting with bottlenecks on the messages-service stream, health fo the elasticsearch
+
+### Synthetic Monitoring
+I will add a synthetic monitor for the elasticsearch help and he service endpoints
+
