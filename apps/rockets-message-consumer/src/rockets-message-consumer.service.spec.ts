@@ -30,8 +30,7 @@ describe('RocketsMessageConsumerService', () => {
         {
           provide: RocketStateService,
           useValue: {
-            getCurrentState: jest.fn(),
-            calculateNewState: jest.fn()
+            reconcileState: jest.fn()
           }
         }
       ],
@@ -43,21 +42,18 @@ describe('RocketsMessageConsumerService', () => {
   });
 
   it('should process and index new messages correctly across both indices', async () => {
-    // Mocking duplicate check (not found)
     jest.spyOn(esClient, 'search').mockResolvedValue({
       hits: { total: { value: 0 }, hits: [] }
     } as any);
 
     const indexSpy = jest.spyOn(esClient, 'index').mockResolvedValue({} as any);
-    jest.spyOn(stateService, 'getCurrentState').mockResolvedValue(mockState as any);
-    jest.spyOn(stateService, 'calculateNewState').mockReturnValue({
+    jest.spyOn(stateService, 'reconcileState').mockResolvedValue({
       ...mockState,
       message: { launchSpeed: 600 }
     } as any);
 
     await service.processMessage(mockPayload as any);
 
-    // Verify raw event storage
     expect(indexSpy).toHaveBeenCalledWith(expect.objectContaining({
       index: 'rockets',
       document: expect.objectContaining({
@@ -65,7 +61,6 @@ describe('RocketsMessageConsumerService', () => {
       })
     }));
 
-    // Verify stateful storage
     expect(indexSpy).toHaveBeenCalledWith(expect.objectContaining({
       index: 'rockets-state',
       id: 'rocket-uuid-1',
@@ -85,7 +80,7 @@ describe('RocketsMessageConsumerService', () => {
     await service.processMessage(mockPayload as any);
 
     expect(indexSpy).not.toHaveBeenCalled();
-    expect(stateService.getCurrentState).not.toHaveBeenCalled();
+    expect(stateService.reconcileState).not.toHaveBeenCalled();
   });
 
   it('should log error and rethrow when search fails', async () => {

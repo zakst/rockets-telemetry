@@ -33,22 +33,48 @@ export class RocketStateService {
     }
   }
 
-  calculateNewState(current: RocketStateDto | null, incoming: RocketMessageDto): RocketStateDto {
-    if (current && incoming.metadata.messageNumber <= current.metadata.messageNumber) {
-      this.logger.warn(`Out-of-order message received for ${incoming.metadata.channel}. Skipping.`);
-      return current;
-    }
+  async reconcileState(rocketUuid: string): Promise<RocketStateDto> {
+    const messages = await this.getAllMessagesForRocket(rocketUuid);
 
-    const state: RocketStateDto = current ? JSON.parse(JSON.stringify(current)) : {
+    const state: RocketStateDto = {
       metadata: {} as any,
       message: { launchSpeed: 0, isExploded: false },
       receivedAt: new Date().toISOString()
     };
 
+    if (messages.length === 0) {
+      return state;
+    }
+
+    messages.sort((a, b) => a.metadata.messageNumber - b.metadata.messageNumber);
+
+    for (const msg of messages) {
+      this.applyMessageToState(state, msg);
+    }
+
+    return state;
+  }
+
+  private async getAllMessagesForRocket(rocketUuid: string): Promise<RocketMessageDto[]> {
+    const response = await this.esClient.search({
+      index: 'rockets',
+      size: 5000,
+      query: {
+        term: { 'metadata.rocketUuid': rocketUuid }
+      },
+      sort: [
+        { 'metadata.messageNumber': { order: 'asc' } }
+      ]
+    });
+
+    return response.hits.hits.map(hit => hit._source as RocketMessageDto);
+  }
+
+  private applyMessageToState(state: RocketStateDto, incoming: RocketMessageDto) {
     const { messageType } = incoming.metadata;
 
     state.metadata = {
-      rocketUuid: incoming.metadata.channel,
+      rocketUuid: (incoming.metadata as any).rocketUuid || incoming.metadata.channel,
       messageNumber: incoming.metadata.messageNumber,
       messageTime: incoming.metadata.messageTime,
       messageType: incoming.metadata.messageType,
@@ -88,7 +114,5 @@ export class RocketStateService {
         break;
       }
     }
-
-    return state;
   }
 }

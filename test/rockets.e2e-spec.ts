@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Client } from '@elastic/elasticsearch';
-import {RocketsModule} from '../apps/rockets/src/rockets.module'
-import {MessagesServiceModule} from '../apps/messages-service/src/messages-service.module'
+import { RocketsModule } from '../apps/rockets/src/rockets.module'
+import { MessagesServiceModule } from '../apps/messages-service/src/messages-service.module'
 
 describe('Rockets API (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +41,7 @@ describe('Rockets API (e2e)', () => {
       index: 'rockets',
       query: { term: { 'metadata.rocketUuid': rocketUuid } },
       refresh: true,
-    }).catch(() => {});
+    }).catch(() => { });
   });
 
   afterAll(async () => {
@@ -53,8 +53,9 @@ describe('Rockets API (e2e)', () => {
       .post('/messages')
       .send(launchMessage)
       .expect(202);
-    await new Promise((resolve) => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 20000));
     await esClient.indices.refresh({ index: 'rockets' });
+    await esClient.indices.refresh({ index: 'rockets-state' });
 
     const listResponse = await request(app.getHttpServer())
       .get('/rockets')

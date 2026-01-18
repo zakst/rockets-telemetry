@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Client } from '@elastic/elasticsearch';
 import { v4 as uuidv4 } from 'uuid';
 import { RocketMessageDto } from '../../../shared/contracts/message.dto';
-import {RocketStateService} from '../../../shared/services/rocket-state.service'
+import { RocketStateService } from '../../../shared/services/rocket-state.service'
 
 @Injectable()
 export class RocketsMessageConsumerService {
@@ -57,27 +57,17 @@ export class RocketsMessageConsumerService {
         index: 'rockets',
         id: documentId,
         document: transformedPayload,
+        refresh: true // Ensure it's available for immediate reconciliation query
       });
 
-      const currentState = await this.rocketStateService.getCurrentState(channel);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      console.log(currentState);
-      const nextState = this.rocketStateService.calculateNewState(currentState, payload);
+      const nextState = await this.rocketStateService.reconcileState(channel);
 
       await this.esClient.index({
         index: 'rockets-state',
         id: channel,
         document: nextState,
       });
-      this.logger.log(`Stored: Rocket ${channel}, Msg #${messageNumber}`);
+      this.logger.log(`Stored & Reconciled: Rocket ${channel}, Msg #${messageNumber}`);
 
     } catch (error) {
       this.logger.error(`Process Failed: ${error.message}`);
