@@ -75,7 +75,7 @@ npm run infra:up
 At this point you will start processing the messages
 
 your terminal can look like
-![Terminal](assets/terminal.png)
+![Terminal](assets/terminal-session.png)
 
 ### API Endpoints ~ Swagger
 
