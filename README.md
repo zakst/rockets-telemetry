@@ -52,6 +52,10 @@ npm install -g @nestjs/cli
 pip install awscli-local
 ```
 
+> [!WARNING]  
+> **Memory Requirement:** Ensure your Docker Desktop is allocated at least **4GiB of RAM**.  
+> Elasticsearch is resource-intensive; providing less than 4GiB may cause the container to crash silently with exit code 137.
+
 ### Running the services
 
 ```shell
