@@ -104,7 +104,7 @@ docker compose logs -f localstack | grep -E "lambda|rockets-message-consumer"
 npm run test
 ```
 
-![E2E Tests](assets/unit-test.png)
+![E2E Tests](assets/e2e.png)
 ## E2E Tests
 
 ```shell
