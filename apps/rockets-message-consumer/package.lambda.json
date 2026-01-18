@@ -1,0 +1,13 @@
+{
+  "name": "rockets-message-consumer",
+  "private": true,
+  "main": "main.js",
+  "dependencies": {
+    "@elastic/elasticsearch": "9.2.0",
+    "@nestjs/common": "11.0.1",
+    "@nestjs/core": "11.0.1",
+    "@nestjs/platform-express": "11.0.1",
+    "aws-lambda": "1.0.7",
+    "uuid": "8.3.2"
+  }
+}

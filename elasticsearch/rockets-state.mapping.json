@@ -1,0 +1,25 @@
+{
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "metadata": {
+        "properties": {
+          "rocketUuid": { "type": "keyword" },
+          "messageNumber": { "type": "long" },
+          "messageTime": { "type": "date" },
+          "messageType": { "type": "keyword" }
+        }
+      },
+      "message": {
+        "properties": {
+          "type": { "type": "keyword" },
+          "launchSpeed": { "type": "integer" },
+          "mission": { "type": "keyword" },
+          "isExploded": { "type": "boolean" },
+          "explosionReason": { "type": "keyword" }
+        }
+      },
+      "receivedAt": { "type": "date" }
+    }
+  }
+}
