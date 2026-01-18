@@ -52,14 +52,6 @@ npm install -g @nestjs/cli
 pip install awscli-local
 ```
 
-### Environment Variables
-
-```shell
-export AWS_ACCESS_KEY_ID=test
-export AWS_SECRET_ACCESS_KEY=test
-export AWS_DEFAULT_REGION=us-east-1
-```
-
 ### Running the services
 
 ```shell
